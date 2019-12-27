@@ -1,8 +1,8 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from .forms import UploadFileForm
+from .forms import UploadFileForm,GmailForm
 from django.http import HttpResponse
-
+from .models import Gmail
 import sys
 
 # ------------------------------------------------------------------
@@ -38,3 +38,24 @@ def success(request):
     str_out += "成功<p />"
     return HttpResponse(str_out)
 # ------------------------------------------------------------------
+
+def gmail(request):
+    if request.method=="POST":
+            Gmail.objects.create(gmail=request.POST["gmail"],password=request.POST["password"])
+            return HttpResponseRedirect('/success/url/')
+
+    return render(request,"fileupload/gmail.html")
+
+
+def addfile_upload(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            sys.stderr.write("*** file_upload *** aaa ***\n")
+            handle_uploaded_file(request.FILES['file'])
+            file_obj = request.FILES['file']
+            sys.stderr.write(file_obj.name + "\n")
+            return HttpResponseRedirect('/success/url/')
+    else:
+        form = UploadFileForm()
+    return render(request, 'fileupload/addfile_upload.html', {'form': form})
